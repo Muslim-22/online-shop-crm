@@ -30,10 +30,11 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     }
 
     useEffect(() => {
-        if (localStorage.getItem('bizdacrmuser')) {
-            setUser(JSON.parse(localStorage.getItem("bizdacrmuser")))
+        const stored = localStorage.getItem("bizdacrmuser");
+        if (stored) {
+            setUser(JSON.parse(stored));
         }
-    }, [])
+    }, []);
 
     return (
         <UserContext.Provider value={{ user, setUser,logOut }}>

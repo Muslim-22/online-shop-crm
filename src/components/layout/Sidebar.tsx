@@ -1,4 +1,4 @@
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import logo from "../../assets/img/logo.png";
 import logoMark from "../../assets/svg/logo-mark.svg";
 import photo from "../../assets/img/photo.png";
@@ -10,16 +10,9 @@ import { useUser } from "../../features/auth/context/UserContext";
 import { useLayout } from "../../context/LayoutContext";
 
 export default function Sidebar() {
-  const { user } = useUser();
+  const { user, logOut: logout } = useUser();
   const { collapsed, mobileOpen, toggleCollapsed, closeMobile } = useLayout();
-  const navigate = useNavigate();
   const compact = collapsed && !mobileOpen;
-  const {logOut:logout} = useUser()
-  // const logout = () => {
-  //   localStorage.removeItem("crmAccessToken");
-  //   localStorage.removeItem("crmRefreshToken");
-  //   navigate("/login");
-  // };
 
   return (
     <>
