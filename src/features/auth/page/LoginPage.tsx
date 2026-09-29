@@ -86,10 +86,14 @@ export default function LoginPage() {
               autoComplete="off"
               requiredMark={false}
               initialValues={{
-                email: "admin@example.com",
-                password: "Admin123!",
+                email: "",
+                password: "",
               }}
             >
+               {/* initialValues={{
+                email: "admin@example.com",
+                password: "Admin123!",
+              }} */}
               <Form.Item
                 label="Email"
                 name="email"
