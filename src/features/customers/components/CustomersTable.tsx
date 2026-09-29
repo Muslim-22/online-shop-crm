@@ -1,148 +1,62 @@
-import React from "react";
-import type { TableColumnsType, TableProps } from "antd";
-import { useDarkMode } from "../../../context/DarkMode";
-import { Button, Table } from "antd";
-import { DeleteOutlined, MessageOutlined } from "@ant-design/icons";
-import { DeleteIcon } from "lucide-react";
+import { Table, Tag } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import useCustomers from "../hooks/useCustomers";
+import type { Customer } from "../types/customer";
+import CustomerActions from "./CustomerActions";
 
-enum Status {
-  active = "Active",
-  inactive = "Inactive",
-  vip = "VIP",
-}
+export default function CustomersTable() {
+  const { data, isLoading } = useCustomers();
 
-interface DataType {
-  key: React.Key;
-  customerId: string;
-  name: string;
-  phone: string;
-  orderCount: string;
-  totalSpend: string;
-  status: Status;
-}
+  const columns: ColumnsType<Customer> = [
+    {
+      title: "Name",
+      key: "name",
+      render: (_, record) => (
+        <div>
+          <div className="font-medium">
+            {record.firstName} {record.lastName}
+          </div>
+          <div className="text-xs text-muted">{record.email}</div>
+        </div>
+      ),
+    },
+    { title: "Phone", dataIndex: "phone", key: "phone" },
+    { title: "Orders", dataIndex: "totalOrders", key: "totalOrders" },
+    {
+      title: "Reviews",
+      dataIndex: ["_count", "reviews"],
+      key: "reviews",
+    },
+    {
+      title: "Total Spent",
+      dataIndex: "totalSpent",
+      key: "totalSpent",
+      render: (value: number) => `${Number(value || 0).toLocaleString("uz-UZ")} so'm`,
+    },
+    {
+      title: "Status",
+      dataIndex: "isActive",
+      key: "isActive",
+      render: (isActive: boolean) =>
+        isActive ? <Tag color="green">Active</Tag> : <Tag color="red">Inactive</Tag>,
+    },
+    {
+      title: "",
+      key: "actions",
+      width: 56,
+      align: "right",
+      render: (_, record) => <CustomerActions data={record} />,
+    },
+  ];
 
-
-const columns: TableColumnsType<DataType> = [
-  {
-    title: "Id",
-    dataIndex: "key",
-    filterMode: "tree",
-    filterSearch: true,
-    onFilter: (value, record) => record.name.includes(value as string),
-  },
-  {
-    title: "Customer Id",
-    dataIndex: "customerId",
-  },
-  {
-    title: "Name",
-    dataIndex: "name",
-  },
-  {
-    title: "Phone",
-    dataIndex: "phone",
-    filterSearch: true,
-  },
-  {
-    title: "Order Count",
-    dataIndex: "orderCount",
-    filterSearch: true,
-  },
-  {
-    title: "Total Spend",
-    dataIndex: "totalSpend",
-    filterSearch: true,
-  },
-  {
-    title: "Status",
-    dataIndex: "status",
-    filterSearch: true,
-  },
-  {
-    title: "Actions",
-    dataIndex: "action",
-    render: (_, record) => (
-      <div className="flex">
-        <Button
-          type="text"
-          icon={<MessageOutlined />}
-          onClick={() => console.log("Message clicked for:", record.name)}
-          className={`!flex !items-center !justify-center `}
-        />
-        <Button 
-        type="text"
-        icon={<DeleteOutlined />}
-        onClick={() => console.log(record.key)}
-        />
-      </div>
-    ),
-  },
-];
-
-const data: DataType[] = [
-  {
-    key: "1",
-    customerId: "#12345",
-    name: "Mens T-Shirt",
-    phone: "01-01-2026",
-    orderCount: "49.99",
-    totalSpend: "Paid",
-    status: Status.active,
-  },
-  {
-    key: "2",
-    customerId: "#12345",
-    name: "Mens T-Shirt",
-    phone: "01-01-2026",
-    orderCount: "49.99",
-    totalSpend: "Paid",
-    status: Status.active,
-  },
-  {
-    key: "3",
-    customerId: "#12345",
-    name: "Mens T-Shirt",
-    phone: "01-01-2026",
-    orderCount: "49.99",
-    totalSpend: "Paid",
-    status: Status.active,
-  },
-  {
-    key: "4",
-    customerId: "#12345",
-    name: "Mens T-Shirt",
-    phone: "01-01-2026",
-    orderCount: "49.99",
-    totalSpend: "Paid",
-    status: Status.active,
-  },
-];
-
-const onChange: TableProps<DataType>["onChange"] = (
-  pagination,
-  filters,
-  sorter,
-  extra,
-) => {
-  console.log("params", pagination, filters, sorter, extra);
-};
-
-const CustomersTable: React.FC = () => {
-  const { isSun, setIsSun } = useDarkMode();
   return (
-    <Table<DataType>
-      onRow={() => ({
-        style: {
-          backgroundColor: isSun ? "#000000" : "#ffffff",
-          color: isSun ? "white" : "black",
-          ["--antd-wave-shadow-color" as any]: "transparent",
-        },
-      })}
+    <Table<Customer>
+      className="data-table"
+      rowKey="id"
+      loading={isLoading}
       columns={columns}
-      dataSource={data}
-      onChange={onChange}
+      dataSource={data?.data ?? []}
+      pagination={{ pageSize: 10, showSizeChanger: true }}
     />
   );
-};
-
-export default CustomersTable;
+}

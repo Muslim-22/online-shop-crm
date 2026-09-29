@@ -1,11 +1,9 @@
 import { Outlet } from "react-router-dom";
-import { useDarkMode } from "../../context/DarkMode";
 
 export default function Context() {
-    const {isSun} = useDarkMode()
   return (
-    <div className={`min-w-0 overflow-x-hidden p-5 mt-25.5 ${isSun ? "bg-black text-white" : "bg-[#F9FAFB] "}`}>
-        <Outlet/>
+    <div className="min-w-0 overflow-x-hidden px-4 py-4 pt-20 md:px-5">
+      <Outlet />
     </div>
-  )
+  );
 }

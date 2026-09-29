@@ -1,97 +1,121 @@
 import { ChevronRight, PlusCircle } from "lucide-react";
-import mashina from '../../../../assets/svg/mashina.svg'
-import phone from '../../../../assets/svg/phone.svg'
-import { useDarkMode } from "../../../../context/DarkMode";
+import { Link, useNavigate } from "react-router-dom";
+import useQuickAdd from "../../hooks/useQuickAdd";
+import Skeleton from "../../../../components/Skeleton";
+import RemoteImg from "../../../../components/RemoteImg";
+
+export function QuickAddCategories() {
+  const { data, isLoading } = useQuickAdd();
+  const categories = (data?.categories ?? []).slice(0, 6);
+
+  return (
+    <div className="card flex h-full flex-col overflow-hidden">
+      <div className="mb-2 flex items-center justify-between">
+        <h4 className="section-title">Quick Add Categories</h4>
+        <Link to="/categories" className="link-quiet inline-flex items-center gap-1">
+          All
+        </Link>
+      </div>
+      <div className="dashboard-list flex flex-col gap-1.5">
+        {isLoading
+          ? [1, 2, 3, 4].map((item) => (
+              <div key={item} className="flex items-center justify-between rounded-lg border border-line px-2 py-1.5">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-7 w-7 rounded-md" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+                <Skeleton className="h-3 w-3" />
+              </div>
+            ))
+          : categories.map((item: any) => (
+              <Link
+                key={item?.id}
+                to={`/categories/${item?.id}`}
+                className="soft-row flex items-center justify-between border border-line"
+              >
+                <div className="flex min-w-0 items-center gap-2">
+                  <div className="grid h-7 w-7 shrink-0 place-items-center overflow-hidden rounded-md bg-canvas">
+                    {item?.image ? (
+                      <RemoteImg src={item.image} alt="" className="h-full w-full object-cover" />
+                    ) : null}
+                  </div>
+                  <h4 className="truncate text-xs font-medium">{item?.name}</h4>
+                </div>
+                <ChevronRight size={14} className="shrink-0 text-muted" />
+              </Link>
+            ))}
+        {!isLoading && categories.length === 0 ? (
+          <p className="py-6 text-center text-xs text-muted">No data</p>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+export function QuickAddProducts() {
+  const { data, isLoading } = useQuickAdd();
+  const navigate = useNavigate();
+  const products = (data?.products ?? []).slice(0, 6);
+
+  return (
+    <div className="card flex h-full flex-col overflow-hidden">
+      <div className="mb-2 flex items-center justify-between">
+        <h4 className="section-title">Quick Add Products</h4>
+        <Link to="/products" className="link-quiet inline-flex items-center gap-1">
+          <PlusCircle size={13} /> New
+        </Link>
+      </div>
+      <div className="dashboard-list divide-y divide-line">
+        {isLoading
+          ? [1, 2, 3, 4].map((item) => (
+              <div key={item} className="flex items-center justify-between py-1.5">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-7 w-7 rounded-md" />
+                  <div className="space-y-1.5">
+                    <Skeleton className="h-3 w-28" />
+                    <Skeleton className="h-2.5 w-16" />
+                  </div>
+                </div>
+                <Skeleton className="h-7 w-12 rounded-lg" />
+              </div>
+            ))
+          : products.map((item: any) => (
+              <div key={item?.id} className="soft-row flex items-center justify-between gap-2">
+                <div className="flex min-w-0 items-center gap-2">
+                  <div className="grid h-7 w-7 shrink-0 place-items-center overflow-hidden rounded-md border border-line">
+                    {item?.image ? (
+                      <RemoteImg src={item.image} alt="" className="h-full w-full object-cover" />
+                    ) : null}
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="truncate text-xs font-medium">{item?.name}</h4>
+                    <p className="truncate text-[11px] text-brand">
+                      {Number(item?.price ?? 0).toLocaleString("uz-UZ")} so'm
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="btn-primary h-7 shrink-0 rounded-lg px-2 text-[11px]"
+                  onClick={() => navigate(`/products/${item?.id}`)}
+                >
+                  Add
+                </button>
+              </div>
+            ))}
+        {!isLoading && products.length === 0 ? (
+          <p className="py-6 text-center text-xs text-muted">No data</p>
+        ) : null}
+      </div>
+    </div>
+  );
+}
 
 export default function AddNewProduct() {
-    const { isSun, setIsSun } = useDarkMode()
-
-    return (
-        <div className={` ${isSun ? "shadow-[0px_1px_3px_0px_gray]" : "shadow-[0px_1px_3px_0px_#00000033]"} p-5 rounded-lg`}>
-            <div className="flex justify-between items-center">
-                <div>
-                    <h4 className="font-bold text-[18px]">Add New Product</h4>
-                </div>
-                <p className="text-[#6467F2] text-[14px] flex items-center gap-1 "><PlusCircle size={19} /> Add New</p>
-            </div>
-            <p className="text-[16px] mt-3 font-semibold">Categories</p>
-            <div className="mt-3 flex flex-col gap-3">
-                <div className="flex justify-between items-center shadow-[0px_1px_3px_0px_#00000033] rounded-md p-1.5 ">
-                    <div className="flex gap-3 items-center">
-                        <img src={mashina} className="py-2 border border-[#E5E7EB] rounded-sm" alt="" />
-                        <h4 className="text-[18px]">Electronic</h4>
-                    </div>
-                    <ChevronRight />
-                </div>
-
-                <div className="flex justify-between items-center shadow-[0px_1px_3px_0px_#00000033] rounded-md p-1.5 ">
-                    <div className="flex gap-3 items-center">
-                        <img src={mashina} className="py-2 border border-[#E5E7EB] rounded-sm" alt="" />
-                        <h4 className="text-[18px]">Electronic</h4>
-                    </div>
-                    <ChevronRight />
-                </div>
-
-                <div className="flex justify-between items-center shadow-[0px_1px_3px_0px_#00000033] rounded-md p-1.5 ">
-                    <div className="flex gap-3 items-center">
-                        <img src={mashina} className="py-2 border border-[#E5E7EB] rounded-sm" alt="" />
-                        <h4 className="text-[18px]">Electronic</h4>
-                    </div>
-                    <ChevronRight />
-                </div>
-            </div>
-            <div className="text-center mt-4 mb-3">
-                <a className="text-[#6467F2]">See more</a>
-            </div>
-            <p className="text-[16px] mt-3 font-semibold">Product</p>
-            <div className="mt-4">
-                <div >
-                    <div className="flex items-center justify-between">
-                        <div className="flex gap-3 items-center ">
-                            <img src={phone} className="w-14 h-14 object-cover border border-[#E5E7EB] rounded-sm" alt="" />
-                            <div>
-                                <h4 className="font-medium text-[15px]">Apple iPhone 13</h4>
-                                <p className="text-[14px] text-[#4EA674]">$39.99</p>
-                            </div>
-                        </div>
-                        <button className="text-[14px] font-medium flex items-center gap-1 rounded-[50px] p-[7px_12px] bg-[#4EA674] text-white"><PlusCircle size={17} /> Add</button>
-                    </div>
-                    <div className="w-full h-px bg-[#D1D1D1] mt-3.25"></div>
-                </div>
-
-                <div >
-                    <div className="flex items-center justify-between">
-                        <div className="flex gap-3 items-center ">
-                            <img src={phone} className="w-14 h-14 object-cover border border-[#E5E7EB] rounded-sm" alt="" />
-                            <div>
-                                <h4 className="font-medium text-[15px]">Apple iPhone 13</h4>
-                                <p className="text-[14px] text-[#4EA674]">$39.99</p>
-                            </div>
-                        </div>
-                        <button className="text-[14px] font-medium flex items-center gap-1 rounded-[50px] p-[7px_12px] bg-[#4EA674] text-white"><PlusCircle size={17} /> Add</button>
-                    </div>
-                    <div className="w-full h-px bg-[#D1D1D1] mt-3.25"></div>
-                </div>
-
-                <div >
-                    <div className="flex items-center justify-between">
-                        <div className="flex gap-3 items-center ">
-                            <img src={phone} className="w-14 h-14 object-cover border border-[#E5E7EB] rounded-sm" alt="" />
-                            <div>
-                                <h4 className="font-medium text-[15px]">Apple iPhone 13</h4>
-                                <p className="text-[14px] text-[#4EA674]">$39.99</p>
-                            </div>
-                        </div>
-                        <button className="text-[14px] font-medium flex items-center gap-1 rounded-[50px] p-[7px_12px] bg-[#4EA674] text-white"><PlusCircle size={17} /> Add</button>
-                    </div>
-                    <div className="w-full h-px bg-[#D1D1D1] mt-3.25"></div>
-                </div>
-
-
-                <div className="text-center mt-4 mb-3">
-                    <a className="text-[#6467F2]">See more</a>
-                </div>
-            </div>
-        </div>
-    )
+  return (
+    <div className="grid grid-cols-1 gap-3">
+      <QuickAddCategories />
+      <QuickAddProducts />
+    </div>
+  );
 }

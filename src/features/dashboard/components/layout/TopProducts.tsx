@@ -1,59 +1,76 @@
+import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
-import phone from '../../../../assets/svg/phone.svg'
-import { useDarkMode } from "../../../../context/DarkMode";
+import { Link } from "react-router-dom";
+import useTopProducts from "../../hooks/useTopProducts";
+import Skeleton from "../../../../components/Skeleton";
+import RemoteImg from "../../../../components/RemoteImg";
 
 export default function TopProducts() {
-      const { isSun, setIsSun } = useDarkMode()
-    
-    return (
-        <div className={` p-5 rounded-lg ${ isSun ? "shadow-[0px_1px_3px_0px_gray]" : "shadow-[0px_1px_3px_0px_#00000033]"}`}>
-            <div className="flex justify-between items-center">
-                <h4 className="font-bold text-[18px]">Top Products</h4>
-                <p className="text-[#6467F2] text-[12px]">All product</p>
-            </div>
-            <div className="flex gap-2 items-center p-2 mt-3 rounded-md bg-[#f6f6f6] w-full">
-                <Search size={17} className="text-black" />
-                <input type="text" className="outline-0 text-black" placeholder="Search" />
-            </div>
-            <div className="mt-4">
-                <div >
-                    <div className="flex items-center justify-between">
-                        <img src={phone} className="w-14 h-14 object-cover" alt="" />
-                        <div className="flex flex-col">
-                            <h4 className="font-medium text-[15px]">Apple iPhone 13</h4>
-                            <p className="text-[12px] ">Item: #FXZ-4567</p>
-                        </div>
-                        <h4 className="font-bold text-[15px]">$999.00</h4>
-                    </div>
-                    <div className="w-full h-px bg-[#D1D1D1] mt-3.25"></div>
-                </div>
+  const { topProducts, isLoading } = useTopProducts();
+  const [query, setQuery] = useState("");
 
-                <div >
-                    <div className="flex items-center justify-between">
-                        <img src={phone} className="w-14 h-14 object-cover" alt="" />
-                        <div className="flex flex-col">
-                            <h4 className="font-medium text-[15px]">Apple iPhone 13</h4>
-                            <p className="text-[12px] ">Item: #FXZ-4567</p>
-                        </div>
-                        <h4 className="font-bold text-[15px]">$999.00</h4>
-                    </div>
-                    <div className="w-full h-px bg-[#D1D1D1] mt-3.25"></div>
-                </div>
+  const filtered = useMemo(() => {
+    const list = topProducts ?? [];
+    const q = query.trim().toLowerCase();
+    if (!q) return list;
+    return list.filter((item: any) => {
+      const name = String(item?.name ?? "").toLowerCase();
+      const sku = String(item?.sku ?? "").toLowerCase();
+      return name.includes(q) || sku.includes(q);
+    });
+  }, [topProducts, query]);
 
-                
-
-                <div >
-                    <div className="flex items-center justify-between">
-                        <img src={phone} className="w-14 h-14 object-cover" alt="" />
-                        <div className="flex flex-col">
-                            <h4 className="font-medium text-[15px]">Apple iPhone 13</h4>
-                            <p className="text-[12px] ">Item: #FXZ-4567</p>
-                        </div>
-                        <h4 className="font-bold text-[15px]">$999.00</h4>
-                    </div>
-                    <div className="w-full h-px bg-[#D1D1D1] mt-3.25"></div>
+  return (
+    <div className="card flex h-full min-h-[320px] flex-col overflow-hidden">
+      <div className="mb-2 flex items-center justify-between">
+        <h4 className="section-title">Top Products</h4>
+        <Link to="/products" className="link-quiet">
+          All
+        </Link>
+      </div>
+      <label className="search-field w-full shrink-0">
+        <Search size={14} className="text-muted" />
+        <input
+          type="search"
+          placeholder="Search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+      </label>
+      <div className="mt-2 min-h-0 flex-1 divide-y divide-line overflow-y-auto">
+        {isLoading
+          ? [1, 2, 3, 4].map((item) => (
+              <div key={item} className="flex items-center gap-2.5 py-2">
+                <Skeleton className="h-8 w-8 rounded-lg" />
+                <div className="min-w-0 flex-1 space-y-1.5">
+                  <Skeleton className="h-3 w-32" />
+                  <Skeleton className="h-2.5 w-16" />
                 </div>
-            </div>
-        </div>
-    )
+                <Skeleton className="h-3 w-12" />
+              </div>
+            ))
+          : filtered.map((item: any) => (
+              <div key={item.sku ?? item.id ?? item.name} className="soft-row flex items-center gap-2.5">
+                <div className="grid h-9 w-9 place-items-center overflow-hidden rounded-xl bg-brand-soft text-brand">
+                  {item?.image ? (
+                    <RemoteImg src={item.image} alt="" className="h-full w-full object-cover" />
+                  ) : null}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="truncate text-xs font-medium">{item.name}</h4>
+                  <p className="truncate text-[11px] text-muted">{item.sku}</p>
+                </div>
+                <h4 className="shrink-0 text-xs font-bold">
+                  {typeof item.price === "number"
+                    ? `${item.price.toLocaleString("uz-UZ")} so'm`
+                    : item.price}
+                </h4>
+              </div>
+            ))}
+        {!isLoading && filtered.length === 0 ? (
+          <p className="py-6 text-center text-xs text-muted">No data</p>
+        ) : null}
+      </div>
+    </div>
+  );
 }

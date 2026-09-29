@@ -1,14 +1,21 @@
-import { useEffect } from "react"
-import { useDarkMode } from "./context/DarkMode"
-import AppRoute from "./routes/AppRoute"
+import { useEffect } from "react";
+import { useDarkMode } from "./context/DarkMode";
+import AppRoute from "./routes/AppRoute";
+import AntdTheme from "./components/theme/AntdTheme";
+import LayoutProvider from "./context/LayoutContext";
 
 export default function App() {
-  const { isSun, setIsSun } = useDarkMode()
-  
+  const { isDark } = useDarkMode();
+
   useEffect(() => {
-    localStorage.setItem('myKey', JSON.stringify(isSun))
-  }, [isSun])
+    document.title = "Bizda";
+  }, [isDark]);
+
   return (
-    <div><AppRoute /></div>
-  )
+    <AntdTheme>
+      <LayoutProvider>
+        <AppRoute />
+      </LayoutProvider>
+    </AntdTheme>
+  );
 }

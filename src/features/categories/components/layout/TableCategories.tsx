@@ -1,129 +1,59 @@
-import React from "react";
-import type { TableColumnsType, TableProps } from "antd";
-import { useDarkMode } from "../../../../context/DarkMode";
-import naushnik from "../../../../assets/svg/naushnik.svg";
-import { Table, Avatar, Flex, Button } from 'antd';
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { Table } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { RemoteAvatar } from "../../../../components/RemoteImg";
+import useCategories from "../../hooks/useCategories";
+import type { CategoryType } from "../../types/categories";
+import CategoryActions from "../CategoryActions";
 
+export default function TableCategories() {
+  const { data: categories, isLoading } = useCategories();
 
+  const columns: ColumnsType<CategoryType> = [
+    {
+      title: "Category",
+      key: "name",
+      render: (_, record) => (
+        <div className="flex items-center gap-3">
+          <RemoteAvatar shape="square" size={40} src={record.image || undefined} className="rounded-xl">
+            {record.name?.charAt(0)}
+          </RemoteAvatar>
+          <span className="font-medium">{record.name}</span>
+        </div>
+      ),
+    },
+    {
+      title: "Products",
+      key: "products",
+      dataIndex: ["_count", "products"],
+    },
+    {
+      title: "Order",
+      dataIndex: "sortOrder",
+      key: "sortOrder",
+    },
+    {
+      title: "Created",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date: string) => new Date(date).toLocaleDateString("en-GB"),
+    },
+    {
+      title: "",
+      key: "actions",
+      width: 56,
+      align: "right",
+      render: (_, record) => <CategoryActions data={record} />,
+    },
+  ];
 
-interface DataType {
-  key: React.Key;
-  product: string;
-  productImage: string;
-  createDate: string;
-  order: number;
-}
-
-const columns: TableColumnsType<DataType> = [
-  {
-    title: "Id",
-    dataIndex: "key",
-    filterMode: "tree",
-    filterSearch: true,
-    onFilter: (value, record) => record.product.includes(value as string),
-  },
-  
-  {
-    title: 'Product',
-    dataIndex: 'product',
-    render: (_, record) => (
-      <Flex align="center" gap={12}>
-        <Avatar 
-          shape="square" 
-          size={48} 
-          src={record.productImage} 
-          style={{ border: '1px solid #e5e7eb', borderRadius: 8 }}
-        />
-        <span style={{ fontWeight: 500 }}>{record.product}</span>
-      </Flex>
-    ),
-  },
-  {
-    title: "Order",
-    dataIndex: "order",
-  },
-  {
-    title: "Created Date",
-    dataIndex: "createDate",
-    filterSearch: true,
-  },
-  {
-    title:"Actions",
-    dataIndex:"action",
-    render:(_, record)=>(
-      <div>
-        <Button
-        type="text"
-        icon={<EditOutlined/>}
-        onClick={() => console.log(record.key)}
-        />
-        <Button
-        type="text"
-        icon={<DeleteOutlined/>}
-        onClick={() => console.log(record.key)}
-        />
-      </div>
-    )
-  }
-];
-
-const data: DataType[] = [
-  {
-    key: "1",
-    product: "Mens T-Shirt",
-    productImage: naushnik,
-    createDate: "01-01-2026",
-    order:23
-  },
-  {
-    key: "2",
-    product: "Mens T-Shirt",
-    productImage: naushnik,
-    createDate: "01-01-2026",
-    order:23
-  },
-  {
-    key: "3",
-    product: "Mens T-Shirt",
-    productImage: naushnik,
-    createDate: "01-01-2026",
-    order:23
-  },
-  {
-    key: "4",
-    product: "Mens T-Shirt",
-    productImage: naushnik,
-    createDate: "01-01-2026",
-    order:23
-  },
-];
-
-const onChange: TableProps<DataType>["onChange"] = (
-  pagination,
-  filters,
-  sorter,
-  extra,
-) => {
-  console.log("params", pagination, filters, sorter, extra);
-};
-
-const TableCategories: React.FC = () => {
-  const { isSun, setIsSun } = useDarkMode();
   return (
-    <Table<DataType>
-      onRow={() => ({
-        style: {
-          backgroundColor: isSun ? "#000000" : "#ffffff",
-          color: isSun ? "white" : "black",
-          ["--antd-wave-shadow-color" as any]: "transparent",
-        },
-      })}
+    <Table<CategoryType>
+      className="data-table"
+      rowKey="id"
+      loading={isLoading}
       columns={columns}
-      dataSource={data}
-      onChange={onChange}
+      dataSource={categories?.data ?? []}
+      pagination={{ pageSize: 10, showSizeChanger: true }}
     />
   );
-};
-
-export default TableCategories;
+}

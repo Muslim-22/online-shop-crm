@@ -1,61 +1,125 @@
-import { ArrowDown, ArrowUp, MoreVertical } from 'lucide-react'
-import { useDarkMode } from '../../../../context/DarkMode'
+import type { ElementType } from "react";
+import {
+  ArrowDown,
+  ArrowUp,
+  Clock3,
+  DollarSign,
+  ShoppingBag,
+  XCircle,
+} from "lucide-react";
+import useKpis from "../../hooks/useKpis";
+import useCountUp, { formatCompact, toNumber } from "../../hooks/useCountUp";
+import Skeleton from "../../../../components/Skeleton";
+
+type KpiCardProps = {
+  title: string;
+  value: number;
+  change?: number;
+  hint: string;
+  icon: ElementType;
+  suffix?: string;
+  tone?: string;
+};
+
+function KpiCard({
+  title,
+  value,
+  change,
+  hint,
+  icon: Icon,
+  suffix,
+  tone = "",
+}: KpiCardProps) {
+  const animated = useCountUp(value);
+  const isUp = (change ?? 0) >= 0;
+
+  return (
+    <article className={`card kpi-card ${tone}`}>
+      <div className="kpi-icon">
+        <Icon size={18} />
+      </div>
+      <div className="min-w-0 flex-1 overflow-hidden">
+        <p className="truncate text-[11px] font-medium text-muted">{title}</p>
+        <div className="mt-0.5 flex min-w-0 items-baseline gap-1.5">
+          <h2 className="stat-value min-w-0 flex-1">
+            {formatCompact(animated)}
+            {suffix ? <span className="ml-1 text-[10px] font-semibold text-muted">{suffix}</span> : null}
+          </h2>
+          <span className={`shrink-0 ${change === undefined ? "invisible" : ""} ${isUp ? "chip-up" : "chip-down"}`}>
+            {isUp ? <ArrowUp size={12} /> : <ArrowDown size={12} />}
+            {Math.abs(change ?? 0)}%
+          </span>
+        </div>
+        <p className="mt-1 truncate text-[11px] text-muted">{hint}</p>
+      </div>
+    </article>
+  );
+}
+
+function KpiSkeleton() {
+  return (
+    <article className="card kpi-card">
+      <Skeleton className="h-[34px] w-[34px] shrink-0 rounded-[10px]" />
+      <div className="min-w-0 flex-1 space-y-1.5">
+        <Skeleton className="h-2.5 w-16" />
+        <Skeleton className="h-5 w-24" />
+        <Skeleton className="h-2 w-14" />
+      </div>
+    </article>
+  );
+}
 
 export default function TotalDashboard() {
-    const { isSun, setIsSun } = useDarkMode()
+  const { kips, isLoadingKpis } = useKpis();
+
+  if (isLoadingKpis) {
     return (
-        <div className={`grid grid-cols-3 w-full gap-5 ${isSun ? "bg-black text-white" : "bg-[#F9FAFB] "}`}>
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        {[1, 2, 3, 4].map((item) => (
+          <KpiSkeleton key={item} />
+        ))}
+      </div>
+    );
+  }
 
-            <div className={`p-5 w-full rounded-lg ${isSun ? "bg-black text-white shadow-[0px_1px_3px_0px_gray]" : "bg-[#F9FAFB] shadow-[0px_1px_3px_0px_#00000033]"}`}>
-                <div className="flex justify-between">
-                    <h3 className="font-bold text-[18px] ">Total Sales</h3>
-                    <MoreVertical />
-                </div>
-                <p className="font-normal text-[14px]  mt-2 mb-5">Last 7 days</p>
-                <h2 className="font-bold text-[32px]  flex gap-4 items-center">$350K <p className="text-[#000000] flex items-center text-[16px]  gap-1">Sales <span className="font-medium flex items-center text-[#21C45D] text-[14px] mb-0"><ArrowUp className="text-[#21C45D]" size={18} /> 10.4%</span></p></h2>
-                <p className=" mt-2 text-[14px]">Previous 7days <span className="text-[#6467F2] font-bold">($235)</span></p>
-                <div className="text-end">
-                    <button className="text-4 mt-4 p-[3px_25px] rounded-[50px] text-[#6467F2] border border-[1px solid #6467F2]">Details</button>
-                </div>
-            </div>
+  const data = kips?.data;
+  const hint = data?.label ?? "Last 7 days";
 
-            <div className={`p-5 w-full rounded-lg ${isSun ? "bg-black text-white shadow-[0px_1px_3px_0px_gray]" : "bg-[#F9FAFB] shadow-[0px_1px_3px_0px_#00000033]"}`}>
-                <div className="flex justify-between">
-                    <h3 className="font-bold text-[18px]">Total Orders</h3>
-                    <MoreVertical />
-                </div>
-                <p className="font-normal text-[14px]  mt-2 mb-5">Last 7 days</p>
-                <h2 className="font-bold text-[32px]  flex gap-4 items-center">10.7K <p className="text-[#000000] flex items-center text-[16px]  gap-1">order <span className="font-medium flex items-center text-[#21C45D] text-[14px] mb-0"><ArrowUp className="text-[#21C45D]" size={18} /> 14.4%</span></p></h2>
-                <p className="mt-2 text-[14px]">Previous 7days <span className="text-[#6467F2] font-bold">(7.6k)</span></p>
-                <div className="text-end">
-                    <button className="text-4 mt-4 p-[3px_25px] rounded-[50px] text-[#6467F2] border border-[1px solid #6467F2]">Details</button>
-                </div>
-            </div>
-
-
-            <div className={`p-5 w-full rounded-lg ${isSun ? "bg-black text-white shadow-[0px_1px_3px_0px_gray]" : "bg-[#F9FAFB] shadow-[0px_1px_3px_0px_#00000033]"}`}>
-                <div className="flex justify-between">
-                    <h3 className="font-bold text-[18px]">Pending & Canceled</h3>
-                    <MoreVertical />
-                </div>
-                <p className="font-normal text-[14px] mt-2 mb-5">Last 7 days</p>
-                <div className="flex gap-6 items-center">
-                    <div>
-                        <p className="text-[14px] mb-1.75">Pending</p>
-                        <h2 className="font-bold text-[32px]  flex gap-4 items-center">509 <span className="font-medium flex items-center text-[#21C45D] text-[16px] mb-0">user 204</span></h2>
-                    </div>
-                    <div className="border w-px h-8 bg-[#c2c0c0]"></div>
-                    <div>
-                        <p className="text-[14px] mb-1.75">Canceled</p>
-                        <h2 className="font-bold text-[32px] text-[#EF4343] flex gap-4 items-center">94 <span className="font-medium flex items-center text-[#F87272] text-[16px] mb-0"><ArrowDown size={18} className="text-[#F87272]" /> user 204</span></h2>
-                    </div>
-                </div>
-                {/* <p className="text-[#6A717F] mt-2 text-[14px]">Previous 7days <span className="text-[#6467F2] font-bold">($235)</span></p> */}
-                <div className="text-end">
-                    <button className="text-4 mt-4 p-[3px_25px] rounded-[50px] text-[#6467F2] border border-[1px solid #6467F2]">Details</button>
-                </div>
-            </div>
-
-        </div>
-    )
+  return (
+    <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+      <KpiCard
+        title="Total Sales"
+        value={toNumber(data?.totalSales?.value)}
+        change={data?.totalSales?.changePercent}
+        hint={hint}
+        icon={DollarSign}
+        suffix="so'm"
+        tone="kpi-sales"
+      />
+      <KpiCard
+        title="Total Orders"
+        value={toNumber(data?.totalOrders?.value)}
+        change={data?.totalOrders?.changePercent}
+        hint={hint}
+        icon={ShoppingBag}
+        tone="kpi-orders"
+      />
+      <KpiCard
+        title="Pending"
+        value={toNumber(data?.pending?.orders ?? data?.pending?.value)}
+        change={data?.pending?.changePercent}
+        hint={hint}
+        icon={Clock3}
+        tone="kpi-pending"
+      />
+      <KpiCard
+        title="Cancelled"
+        value={toNumber(data?.cancelled?.value ?? data?.canceled?.value)}
+        change={data?.cancelled?.changePercent ?? data?.canceled?.changePercent}
+        hint={hint}
+        icon={XCircle}
+        tone="kpi-cancelled"
+      />
+    </div>
+  );
 }

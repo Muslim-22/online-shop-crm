@@ -1,43 +1,89 @@
-import { Bell, Moon, Search, Sun } from "lucide-react"
-import { useLocation } from "react-router-dom"
-import photo from '../../assets/img/photo.jpg'
-import { useDarkMode } from "../../context/DarkMode"
+import { Menu, Moon, Sun } from "lucide-react";
+import { useLocation } from "react-router-dom";
+import photo from "../../assets/img/photo.png";
+import CommandSearch from "../CommandSearch";
+import RemoteImg from "../RemoteImg";
+import { useDarkMode } from "../../context/DarkMode";
+import { useUser } from "../../features/auth/context/UserContext";
+import { useLayout } from "../../context/LayoutContext";
+
+const pageTitle: Record<string, string> = {
+  "/": "Dashboard",
+  "/dashboard": "Dashboard",
+  "/order": "Order Management",
+  "/customers": "Customers",
+  "/categories": "Categories",
+  "/products": "Products",
+  "/profile": "Profile",
+  "/banner": "Banners",
+  "/brands": "Brands",
+};
 
 export default function Header() {
+  const { pathname } = useLocation();
+  const { isDark, setIsDark } = useDarkMode();
+  const { user } = useUser();
+  const { toggleMobile } = useLayout();
 
-  const pageTitle = {
-    '/dashboard': "Dashboard",
-    '/order': "Order Management",
-    '/customers': "Customers",
-    '/categories': "Categories",
-    '/addProduct': "Add Products",
-    '/profile': "Profile"
-  }
+  const currentTitle =
+    pageTitle[pathname] ||
+    (pathname.startsWith("/products")
+      ? "Product Details"
+      : pathname.startsWith("/categories")
+        ? "Category Details"
+        : pathname.startsWith("/order/")
+          ? "Order Details"
+          : pathname.startsWith("/banner/")
+            ? "Banner Details"
+            : pathname.startsWith("/brands/")
+              ? "Brand Details"
+              : pathname.startsWith("/customers/")
+                ? "Customer Details"
+                : "Dashboard");
 
-  const { pathname } = useLocation()
-  const {isSun, setIsSun} = useDarkMode()
-  console.log(isSun);
-  document.body.classList.toggle("dark-mode", isSun)
-
-  const currentTitle = pageTitle[pathname] || "Dashboard"
   return (
-    <div className={`fixed left-65 right-0 z-1 flex min-w-0 items-center justify-between bg-black shrink-0 p-[24px_44px_24px_24px] ${isSun ? "bg-black text-white shadow-[0_3px_4px_-1px_gray]" : "bg-white shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1)]"}`}>
-      <h1 className="font-bold text-[22px]">{currentTitle}</h1>
-      <div className="flex gap-8 items-center">
-        <div className="flex bg-[#F9FAFB] p-[15px_33px] rounded-[30px] w-102 items-center justify-between">
-          <input type="text" placeholder="Search data, users, or reports" className={`outline-0 ${isSun ? "text-black" : "text-black"}`} />
-          <Search className={`${isSun ? "text-black" : "text-black"}`} />
-        </div>
-        <Bell />
-        <div className="bg-[#EAF8E7] p-2 w-20 rounded-full flex gap-1">
-          {
-            isSun ?
-              <Moon onClick={() => setIsSun(!isSun)} size={30} className={`bg-white cursor-pointer p-1 rounded-full ${isSun ? "text-black" : "text-black"}`} /> :
-              <Sun onClick={() => setIsSun(!isSun)} size={30} className="bg-white cursor-pointer p-1 rounded-full" />
-          }
-        </div>
-        <img className='w-10 h-10 shrink-0 rounded-full object-cover' src={photo} alt="" />
+    <header className="fixed top-0 right-0 left-[var(--sidebar-w)] z-20 flex h-16 items-center justify-between gap-3 border-b border-line bg-[var(--app-header)] px-4 backdrop-blur-xl transition-[left] duration-300 md:px-5">
+      <div className="flex min-w-0 items-center gap-3">
+        <button
+          type="button"
+          className="icon-btn lg:hidden"
+          onClick={toggleMobile}
+          aria-label="Open menu"
+        >
+          <Menu size={16} />
+        </button>
+        <h1 className="page-title truncate">{currentTitle}</h1>
       </div>
-    </div>
-  )
+
+      <div className="flex items-center gap-2">
+        <CommandSearch />
+
+        <div className="theme-toggle">
+          <button
+            type="button"
+            className={!isDark ? "is-active" : ""}
+            onClick={() => setIsDark(false)}
+            aria-label="Light mode"
+          >
+            <Sun size={16} />
+          </button>
+          <button
+            type="button"
+            className={isDark ? "is-active" : ""}
+            onClick={() => setIsDark(true)}
+            aria-label="Dark mode"
+          >
+            <Moon size={16} />
+          </button>
+        </div>
+
+        <RemoteImg
+          className="h-8 w-8 shrink-0 rounded-full object-cover ring-2 ring-line"
+          src={user?.avatar}
+          fallback={photo}
+          alt=""
+        />
+      </div>
+    </header>
+  );
 }

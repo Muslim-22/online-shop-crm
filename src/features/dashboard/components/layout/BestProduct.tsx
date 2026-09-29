@@ -1,58 +1,81 @@
-import phone from '../../../../assets/svg/phone.svg'
-import { useDarkMode } from '../../../../context/DarkMode'
+import { Link } from "react-router-dom";
+import useBestSellingProducts from "../../hooks/useBestSellingProducts";
+import Skeleton from "../../../../components/Skeleton";
+import RemoteImg from "../../../../components/RemoteImg";
 
 export default function BestProduct() {
-    const { isSun, setIsSun } = useDarkMode()
+  const { bestSellingProducts, isLoading } = useBestSellingProducts();
+  const rows = (bestSellingProducts ?? []).slice(0, 5);
 
-    return (
-        <div className={`rounded-lg p-5 flex flex-col justify-between  ${ isSun ? "shadow-[0px_1px_3px_0px_gray]" : "shadow-[0px_1px_3px_0px_#00000033]"}`}>
-            <div>
-                <div className=" flex justify-between items-center mb-5">
-                    <h4 className="text-[18px] font-bold">Best selling product</h4>
-                    <button className="bg-[#4EA674] rounded-md p-[7.5px_12px] text-white">Filter</button>
-                </div>
-                <table className="w-full mb-9.5 text-left">
-                    <thead className='rounded-md'>
-                        <tr className="bg-[#EAF8E7]">
-                            <th className="px-8 py-2 rounded-l-md text-[#6A717F]">Product</th>
-                            <th className='text-[#6A717F]'>Total Order</th>
-                            <th className='text-[#6A717F]'>Status</th>
-                            <th className='rounded-r-md text-[#6A717F]'>Price</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td className="px-5 flex gap-2 items-center py-2">
-                                <img src={phone} className='rounded-md' alt="" />
-                                Apple iPhone 13</td>
-                            <td>104</td>
-                            <td>Stock</td>
-                            <td>$999.00</td>
-                        </tr>
-
-                        <tr>
-                            <td className="px-5 flex gap-2 items-center py-2">
-                                <img src={phone} className='rounded-md' alt="" />
-                                Apple iPhone 13</td>
-                            <td>104</td>
-                            <td>Stock</td>
-                            <td>$999.00</td>
-                        </tr>
-
-                        <tr>
-                            <td className="px-5 flex gap-2 items-center py-2">
-                                <img src={phone} className='rounded-md' alt="" />
-                                Apple iPhone 13</td>
-                            <td>104</td>
-                            <td>Stock</td>
-                            <td>$999.00</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div className="text-end">
-                <button className="rounded-[50px] mb-5 mr-5 text-[#6467F2] p-[3px_25px] text-[16px] border border-[#6467F2]">Details</button>
-            </div>
-        </div>
-    )
+  return (
+    <div className="card flex h-full min-h-[320px] flex-col overflow-hidden">
+      <div className="mb-2 flex items-center justify-between">
+        <h4 className="section-title">Best Selling Products</h4>
+        <Link to="/products" className="link-quiet">
+          All
+        </Link>
+      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <table className="app-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Orders</th>
+              <th>Status</th>
+              <th>Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            {isLoading
+              ? [1, 2, 3, 4].map((item) => (
+                  <tr key={item}>
+                    <td>
+                      <div className="flex items-center gap-2">
+                        <Skeleton className="h-7 w-7 rounded-md" />
+                        <Skeleton className="h-3 w-28" />
+                      </div>
+                    </td>
+                    <td>
+                      <Skeleton className="h-3 w-8" />
+                    </td>
+                    <td>
+                      <Skeleton className="h-5 w-14 rounded-full" />
+                    </td>
+                    <td>
+                      <Skeleton className="h-3 w-16" />
+                    </td>
+                  </tr>
+                ))
+              : rows.map((item: any, index: number) => (
+                  <tr key={item.id ?? item.name}>
+                    <td>
+                      <div className="flex min-w-0 items-center gap-2">
+                        <span className="w-4 text-[11px] font-bold text-muted">{index + 1}</span>
+                        <div className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-lg bg-brand-soft text-brand">
+                          {item?.image ? (
+                            <RemoteImg src={item.image} alt="" className="h-full w-full object-cover" />
+                          ) : null}
+                        </div>
+                        <span className="truncate text-xs">{item.name}</span>
+                      </div>
+                    </td>
+                    <td>{item.orders}</td>
+                    <td>
+                      <span className="rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-semibold text-brand">
+                        {item.status}
+                      </span>
+                    </td>
+                    <td className="font-semibold">
+                      {Number(item.price ?? 0).toLocaleString("uz-UZ")} so'm
+                    </td>
+                  </tr>
+                ))}
+          </tbody>
+        </table>
+        {!isLoading && rows.length === 0 ? (
+          <p className="py-6 text-center text-xs text-muted">No data</p>
+        ) : null}
+      </div>
+    </div>
+  );
 }

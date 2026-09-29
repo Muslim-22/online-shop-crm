@@ -2,17 +2,13 @@ import SliderModule from "react-slick";
 import type { Settings } from "react-slick";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef } from "react";
-import categoryImage from "../../../../assets/img/photo.jpg";
 import iconcha from "../../../../assets/svg/q1.svg";
-import { useDarkMode } from "../../../../context/DarkMode";
-
 const Slider =
   (SliderModule as unknown as { default?: typeof SliderModule }).default ??
   SliderModule;
 
 export default function CategoryList() {
   const sliderRef = useRef<SliderModule | null>(null);
-  const {isSun, setIsSun} = useDarkMode()
   const settings: Settings = {
     dots: false,
     infinite: false,
@@ -77,7 +73,7 @@ export default function CategoryList() {
       <button
         type="button"
         aria-label="Oldingi kategoriya"
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm transition hover:bg-gray-50"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-ink shadow-sm transition hover:bg-canvas"
         onClick={() => sliderRef.current?.slickPrev()}
       >
         <ChevronLeft size={20} />
@@ -87,11 +83,11 @@ export default function CategoryList() {
         <Slider ref={sliderRef} {...settings}>
           {categoriesData.map((item) => (
             <div key={item.id} className="px-2 pb-4">
-              <div className={`flex min-h-24 items-center gap-3 rounded-lg border border-gray-20 p-3 shadow-sm ${isSun ? "bg-black text-white" : "bg-white"}`}>
+              <div className="flex min-h-24 items-center gap-3 rounded-lg border border-line bg-surface p-3 text-ink shadow-sm">
                 <img
                   src={item.image}
                   alt={item.label}
-                  className="h-16 w-16 shrink-0 rounded border border-gray-300 object-cover"
+                  className="h-16 w-16 shrink-0 rounded border border-line object-cover"
                 />
                 <span className="text-lg font-semibold">{item.label}</span>
               </div>
@@ -103,7 +99,7 @@ export default function CategoryList() {
       <button
         type="button"
         aria-label="Keyingi kategoriya"
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm transition hover:bg-gray-50"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-ink shadow-sm transition hover:bg-canvas"
         onClick={() => sliderRef.current?.slickNext()}
       >
         <ChevronRight size={20} />

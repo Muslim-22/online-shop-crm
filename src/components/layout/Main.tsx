@@ -1,14 +1,11 @@
-import { useDarkMode } from "../../context/DarkMode";
 import Context from "./Context";
 import Header from "./Header";
 
-
 export default function Main() {
-    const {isSun} = useDarkMode()
   return (
-    <main className={`ml-65 flex min-w-0 w-[calc(100%-260px)] flex-none flex-col ${isSun ? "bg-black text-white" : "bg-[#F9FAFB] "}`}>
-        <Header/>
-        <Context/>
+    <main className="ml-[var(--sidebar-w)] flex min-h-screen min-w-0 flex-1 flex-col bg-canvas text-ink transition-[margin] duration-300">
+      <Header />
+      <Context />
     </main>
-  )
+  );
 }

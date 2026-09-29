@@ -1,88 +1,90 @@
-import america from '../../../../assets/svg/america.svg'
-import brazil from '../../../../assets/svg/brazil.svg'
-import austriya from '../../../../assets/svg/austriya.svg'
-import flag from '../../../../assets/img/flag.png'
-import { MyRoundedDiagram } from "../../components/layout/Diagramma2";
-import { ArrowUp, MoreVertical } from 'lucide-react'
-import { useDarkMode } from '../../../../context/DarkMode'
+import { ArrowDown, ArrowUp } from "lucide-react";
+import { MyRoundedDiagram } from "./Diagramma2";
+import useSalesByCountry from "../../hooks/useSalesByCountry";
+import useRealTimeUsers from "../../hooks/useRealTimeUsers";
+import useCountUp, { formatCount, toNumber } from "../../hooks/useCountUp";
+import Skeleton from "../../../../components/Skeleton";
+
 export default function CountryDashboard() {
-    const { isSun, setIsSun } = useDarkMode()
-    return (
-        <div className={`rounded-lg flex flex-col justify-between ${isSun ? "bg-black text-white shadow-[0px_1px_3px_0px_gray]" : "bg-[#F9FAFB] shadow-[0px_1px_3px_0px_#00000033]"}`}>
-            <div>
-                <div className="flex justify-between items-start p-5">
-                    <div>
-                        <p className="text-[14px] text-[#6467F2] mb-2">Users in last 30 minutes</p>
-                        <h2 className="font-bold text-[32px]">21.5K</h2>
-                    </div>
-                    <MoreVertical />
-                </div>
-                <p className="font-medium mt-6 mb-0 pl-5">Users per minute</p>
-                <div>
-                    <MyRoundedDiagram />
-                </div>
-                <div className="flex justify-between items-center pt-6 px-5 mb-3">
-                    <h4 className="font-semibolt text-[18px]">Sales by Country</h4>
-                    <h4 className="font-semibolt text-[18px]">Sales</h4>
-                </div>
+  const { salesByCountry, isLoadingsalesByCountry } = useSalesByCountry();
+  const { realTimeUsers, isLoading } = useRealTimeUsers();
+  const users = useCountUp(toNumber(realTimeUsers?.total));
+  const countries = salesByCountry?.data ?? [];
 
-
-                <div
-                    className=" p-5 flex flex-col gap-6.5 bg-cover bg-center"
-                    style={{ backgroundImage: `url(${flag})` }}
-                >
-                    <div className="flex justify-between items-center">
-                        <div className="flex gap-4">
-                            <img src={america} className="w-8.5 h-8.5 object-cover rounded-full" alt="" />
-                            <div className="">
-                                <h4 className="text-[14px] font-bold">30k</h4>
-                                <p className="text-[12px]">US</p>
-                            </div>
-                        </div>
-                        <div className="flex flex-col items-end gap-1">
-                            <p className="text-[#28C76F] text-[14px] flex gap-1 items-center"><ArrowUp size={16} />25.8%</p>
-                            <div className="w-45 h-1.5 rounded-[10px] bg-[#F0F3FF]">
-                                <div className="h-1.5 rounded-[10px] bg-[#6467F2] w-[25.8%]"></div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <div className="flex justify-between items-center">
-                        <div className="flex gap-4">
-                            <img src={brazil} className="w-8.5 h-8.5 object-cover rounded-full" alt="" />
-                            <div className="">
-                                <h4 className="text-[14px] font-bold">30k</h4>
-                                <p className="text-[12px]">Brazil</p>
-                            </div>
-                        </div>
-                        <div className="flex flex-col items-end gap-1">
-                            <p className="text-[#28C76F] text-[14px] flex gap-1 items-center"><ArrowUp size={16} />15.8%</p>
-                            <div className="w-45 h-1.5 rounded-[10px] bg-[#F0F3FF]">
-                                <div className="h-1.5 rounded-[10px] bg-[#6467F2] w-[15.8%]"></div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <div className="flex justify-between items-center">
-                        <div className="flex gap-4">
-                            <img src={austriya} className="w-8.5 h-8.5 object-cover rounded-full" alt="" />
-                            <div className="">
-                                <h4 className="text-[14px] font-bold">25k</h4>
-                                <p className="text-[12px]">Australia</p>
-                            </div>
-                        </div>
-                        <div className="flex flex-col items-end gap-1">
-                            <p className="text-[#28C76F] text-[14px] flex gap-1 items-center"><ArrowUp size={16} />35.8%</p>
-                            <div className="w-45 h-1.5 rounded-[10px] bg-[#F0F3FF]">
-                                <div className="h-1.5 rounded-[10px] bg-[#6467F2] w-[35.8%]"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <button className="border border-[#6467F2]  w-[calc(100%-40px)] m-[5px_20px_16px] py-[7.5px] rounded-[50px]">View Insight</button>
+  return (
+    <div className="card flex h-full flex-col">
+      {isLoading ? (
+        <div className="space-y-2">
+          <Skeleton className="h-2.5 w-40" />
+          <Skeleton className="h-6 w-16" />
+          <Skeleton className="mt-3 h-16 w-full rounded-lg" />
         </div>
-    )
+      ) : (
+        <>
+          <div className="mb-1 flex items-center gap-2">
+            <span className="live-dot" />
+            <p className="mb-0 text-[11px] font-semibold text-brand">
+              Users in Last {realTimeUsers?.windowMinutes || 0} Minutes
+            </p>
+          </div>
+          <h2 className="stat-value">{formatCount(users)}</h2>
+          <p className="mt-2 mb-1 text-[11px] font-medium text-muted">Users Per Minute</p>
+          <MyRoundedDiagram realTimeUsers={realTimeUsers} />
+        </>
+      )}
+
+      <div className="mt-3 mb-2 flex items-center justify-between">
+        <h4 className="section-title">Sales by Country</h4>
+        <span className="text-[11px] font-medium text-muted">Sales</span>
+      </div>
+
+      <div className="mt-1 flex max-h-[188px] min-h-0 flex-col gap-1.5 overflow-y-auto">
+        {isLoadingsalesByCountry
+          ? [1, 2, 3].map((item) => (
+              <div key={item} className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-6 w-6 rounded-full" />
+                  <div className="space-y-1.5">
+                    <Skeleton className="h-3 w-20" />
+                    <Skeleton className="h-2.5 w-14" />
+                  </div>
+                </div>
+                <Skeleton className="h-2 w-24 rounded-full" />
+              </div>
+            ))
+          : countries.map((item: any) => {
+              const up = toNumber(item.changePercent) >= 0;
+              return (
+                <div key={item.name} className="soft-row flex items-center justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <img
+                      src="https://thumb.wikimedia.org/wikipedia/commons/thumb/8/84/Flag_of_Uzbekistan.svg/1920px-Flag_of_Uzbekistan.svg.png"
+                      className="h-6 w-6 rounded-full object-cover"
+                      alt={item.name}
+                    />
+                    <div className="min-w-0">
+                      <h4 className="truncate text-xs font-bold">
+                        {toNumber(item.sales).toLocaleString("uz-UZ")} so'm
+                      </h4>
+                      <p className="truncate text-[11px] text-muted">{item.name}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <p className={`${up ? "chip-up" : "chip-down"} flex items-center gap-1 text-[11px]`}>
+                      {up ? <ArrowUp size={12} /> : <ArrowDown size={12} />}
+                      {Math.abs(toNumber(item.changePercent))}%
+                    </p>
+                    <div className="progress-track w-24">
+                      <div
+                        className="progress-fill"
+                        style={{ width: `${Math.min(100, toNumber(item.share))}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+      </div>
+    </div>
+  );
 }

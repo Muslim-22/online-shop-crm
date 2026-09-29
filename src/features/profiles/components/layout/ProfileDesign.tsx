@@ -1,33 +1,34 @@
-import { Copy, Share, Share2, SquarePen } from "lucide-react";
-import { useDarkMode } from "../../../../context/DarkMode";
-import user from "../../../../assets/img/photo.jpg";
+import { Copy, Share2, SquarePen } from "lucide-react";
+import photo from "../../../../assets/img/photo.png";
+import RemoteImg from "../../../../components/RemoteImg";
+import { useUser } from "../../../auth/context/UserContext";
 
 export default function ProfileDesign() {
-  const { isSun } = useDarkMode();
+  const { user } = useUser();
+
   return (
-    <div
-      className={` rounded-lg p-[16px_20px] ${isSun ? "shadow-[0px_1px_3px_0px_gray]" : "shadow-[0px_1px_3px_0px_#00000033]"}`}
-    >
-      <div className="flex justify-between items-center ">
-        <h3 className="font-bold text-[18px]">Profile</h3>
-        <div className="flex gap-2 items-center ">
+    <div className="card p-5">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-bold">Profile</h3>
+        <div className="flex items-center gap-2 text-muted">
           <SquarePen size={18} />
           <Share2 size={18} />
         </div>
       </div>
-
-      <div className="flex flex-col items-center mt-1">
-        <img
-          src={user}
-          className="w-24 h-24 object-cover mb-2 rounded-full"
+      <div className="mt-4 flex flex-col items-center">
+        <RemoteImg
+          src={user?.avatar}
+          fallback={photo}
+          className="mb-3 h-24 w-24 rounded-full object-cover ring-4 ring-line"
           alt=""
         />
-        <h3 className="font-bold text-[18px] mb-1">Wade Warren</h3>
-        <div className="flex gap-4 items-center mb-5">
-          <p className="text-[14px]">wade.warren@example.com</p>
-          <Copy />
+        <h3 className="mb-1 text-lg font-bold">
+          {user?.firstName} {user?.lastName}
+        </h3>
+        <div className="mb-2 flex items-center gap-3 text-sm text-muted">
+          <p>{user?.email}</p>
+          <Copy size={16} />
         </div>
-        
       </div>
     </div>
   );
